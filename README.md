@@ -2,7 +2,7 @@
 
 A bilingual (English and Arabic, right to left) system for an Egyptian real-estate agency in one small codebase. The public site lists properties with search and filters that need no map. Brokers work in a CRM with leads, a viewings schedule, a deals pipeline and commission.
 
-**Live demo:** https://maskan-real-estate.vercel.app  
+**Live demo:** https://maskan-real-estate-nine.vercel.app  
 Browse: `/` · Property: `/property?id=...` · Broker CRM: `/crm`
 
 Demo sign-in (public on purpose, this is a demo): manager **Mona**, PIN `2468`. Agents **Karim**, **Hana**, **Omar**, PIN `1357`.
