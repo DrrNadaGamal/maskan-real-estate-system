@@ -32,10 +32,10 @@ await shot(ar, 'home-ar');
 // ---- property + inquiry
 const pp = await mk(); await pp.goto(U + '/property?id=L101&lang=en', { waitUntil: 'networkidle0' });
 await pp.click('.gal-nav.n'); await sleep(100); ok((await pp.$$('.thumbs button[aria-current=true]')).length === 1, 'gallery navigation');
-await pp.click('#inq .btn'); ok((await pp.$$('.err')).length === 2, 'empty form shows two errors');
-await pp.type('#name', 'Mazen Hassan'); await pp.type('#phone', '0109 876 5432'); await pp.type('#message', 'Is the price negotiable? <img src=x onerror=window.__x=1>'); 
 await shot(pp, 'property-en');
-await pp.click('#inq .btn'); await pp.waitForSelector('.sentbox'); ok((await text(pp, '.sentbox h2')).includes('received'), 'inquiry accepted'); ok(!(await pp.evaluate(() => window.__x)), 'hostile HTML in the message is not executed');
+await pp.click('#inq .btn'); ok((await pp.$$('.err')).length === 2, 'empty form shows two errors');
+await pp.type('#name', 'Mazen Hassan'); await pp.type('#phone', '0109 876 5432'); await pp.type('#message', 'Is the price negotiable? We can view on Saturday.');
+await pp.click('#inq .btn'); await pp.waitForSelector('.sentbox'); ok((await text(pp, '.sentbox h2')).includes('received'), 'inquiry accepted'); 
 await pp.goto(U + '/property?id=L101&lang=ar', { waitUntil: 'networkidle0' }); await shot(pp, 'property-ar');
 // ---- agent role
 const ag = await mk(); await login(ag, 'karim', '1357');
@@ -48,7 +48,7 @@ await shot(mgr, 'crm-leads');
 await ag.click('[data-tab=leads]'); await sleep(200); const aLeads = (await ag.$$('.lc')).length; ok(aLeads > 0 && aLeads < mLeads, `agent sees only ${aLeads} leads`);
 // the website inquiry reached the listing agent (Karim owns L101)
 await ag.type('#lq', 'Mazen'); await sleep(300); ok((await ag.$$('.lc')).length === 1, 'website inquiry appears as a lead for the listing agent');
-await ag.click('.lc'); await ag.waitForSelector('.drawer'); ok((await ag.$$eval('.tl div', (e) => e.some((d) => d.textContent.includes('<img src=x')))), 'inquiry message is in the timeline as plain text');
+await ag.click('.lc'); await ag.waitForSelector('.drawer'); ok((await ag.$$eval('.tl div', (e) => e.some((d) => d.textContent.includes('negotiable')))), 'inquiry message is in the timeline ');
 await ag.type('#noteText', 'Called, wants to see it'); await ag.click('#postNote'); await sleep(400); ok((await text(ag, '.drawer')).includes('Contacted'), 'note moves a new lead to Contacted');
 await shot(ag, 'crm-lead-drawer');
 // book a viewing on Thursday-ish: use API-valid time (next open day 12:00 Cairo)
@@ -88,5 +88,12 @@ await off.setOfflineMode(false); await off.evaluate(() => window.dispatchEvent(n
 const q = await off.evaluate(() => JSON.parse(localStorage.getItem('maskan_inquiry_queue') || '[]').length); ok(q === 0, 'queue flushed after reconnect');
 const mt = await api(mgr, { type: 'crm.state' }, await mgr.evaluate(() => localStorage.getItem('maskan_token')));
 ok(mt.body.crm.leads.filter((l) => l.phone === '+201055500011').length === 1, 'queued inquiry created exactly one lead');
+// hostile input last, after every screenshot, then reset the demo
+const hx = await mk(); await hx.goto(U + '/property?id=L107&lang=en', { waitUntil: 'networkidle0' });
+await hx.type('#name', '<img src=x onerror=window.__x=1>'); await hx.type('#phone', '01077700022'); await hx.type('#message', '<script>window.__x=1</script>'); await hx.click('#inq .btn'); await hx.waitForSelector('.sentbox');
+ok(!(await hx.evaluate(() => window.__x)), 'hostile HTML in a public inquiry is not executed');
+await mgr.goto(U + '/crm?lang=en', { waitUntil: 'networkidle0' }); await sleep(500);
+ok(!(await mgr.evaluate(() => window.__x)) && (await mgr.$$('img[src=x]')).length === 0, 'hostile lead renders as text in the CRM');
+const mt2 = await mgr.evaluate(() => localStorage.getItem('maskan_token')); await api(mgr, { type: 'reset' }, mt2);
 const errs = [pub, ar, pp, ag, mgr, mob, off].flatMap((p) => p.errs); ok(errs.length === 0, 'no page errors ' + errs.join('|'));
 await b.close(); console.log(fails ? `${fails} FAILED` : 'ALL PASSED'); process.exit(fails ? 1 : 0);
