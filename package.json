@@ -1,0 +1,11 @@
+{
+  "name": "maskan-real-estate-system",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Maskan - bilingual (Arabic RTL / English) Egyptian real-estate demo: public listings with map-less search, property pages with inquiry form, and a broker CRM (leads, viewings, deals, commission, roles).",
+  "scripts": { "dev": "node dev-server.mjs", "test": "node test/logic.test.mjs" },
+  "dependencies": { "@vercel/blob": "^1.0.0" },
+  "devDependencies": { "puppeteer-core": "^23.0.0" },
+  "license": "MIT"
+}

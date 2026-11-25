@@ -1,0 +1,2 @@
+{ "name": "Maskan Real Estate Demo", "short_name": "Maskan", "start_url": "/", "display": "standalone", "background_color": "#f6f2ea", "theme_color": "#0f5c52",
+  "icons": [ { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" } ] }
